@@ -102,11 +102,11 @@ router.post("/upload", auth, upload.single("video"), (req, res) => {
   const outputDir = path.join(VIDEOS_DIR, videoId);
   fs.mkdirSync(outputDir, { recursive: true });
 
-  try {
-    const host = req.get("host") || req.headers.host;
+ try {
+    const rawHost = req.headers['x-forwarded-host'] || req.get("host") || req.headers.host;
+    const host = rawHost.split(':')[0]; // port hataao
     const serverUrl = `https://${host}`;
     const keyInfoFile = generateEncryptionKey(outputDir, videoId, serverUrl);
-
     // FFmpeg — HLS + AES-128 encryption
     execSync(
       `ffmpeg -i "${req.file.path}" \
