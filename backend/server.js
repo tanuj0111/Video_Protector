@@ -5,6 +5,17 @@ const adminRoutes = require("./routes/admin");
 
 const app = express();
 
+const path = require('path');
+
+// Static files serve karo (React build)
+app.use(express.static(path.join(__dirname, '../frontend/build')));
+
+// Har unknown route ko React ko de do
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/build', 'index.html'));
+});
+
+
 // Phone aur PC dono se allow karo
 app.use(cors({
   origin: "*", // Local network ke liye sab allow
