@@ -10,7 +10,7 @@ const router = express.Router();
 
 // ─── Paths ────────────────────────────────────────────────────────────────────
 const VIDEOS_DIR = path.join(__dirname, "../videos");
-const META_FILE  = path.join(__dirname, "../videos/meta.json");
+const META_FILE = path.join(__dirname, "../videos/meta.json");
 const UPLOADS_TMP = path.join(__dirname, "../uploads_tmp");
 
 [VIDEOS_DIR, UPLOADS_TMP].forEach((d) => {
@@ -20,8 +20,11 @@ const UPLOADS_TMP = path.join(__dirname, "../uploads_tmp");
 // ─── Metadata helpers ─────────────────────────────────────────────────────────
 function readMeta() {
   if (!fs.existsSync(META_FILE)) return [];
-  try { return JSON.parse(fs.readFileSync(META_FILE, "utf8")); }
-  catch { return []; }
+  try {
+    return JSON.parse(fs.readFileSync(META_FILE, "utf8"));
+  } catch {
+    return [];
+  }
 }
 function writeMeta(data) {
   fs.writeFileSync(META_FILE, JSON.stringify(data, null, 2));
@@ -30,26 +33,32 @@ function writeMeta(data) {
 // ─── Multer ───────────────────────────────────────────────────────────────────
 const storage = multer.diskStorage({
   destination: UPLOADS_TMP,
-  filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname)),
+  filename: (req, file, cb) =>
+    cb(null, Date.now() + path.extname(file.originalname)),
 });
 const upload = multer({
   storage,
   limits: { fileSize: 500 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
     const allowed = [".mp4", ".mov", ".mkv", ".avi", ".webm"];
-    if (allowed.includes(path.extname(file.originalname).toLowerCase())) cb(null, true);
+    if (allowed.includes(path.extname(file.originalname).toLowerCase()))
+      cb(null, true);
     else cb(new Error("Only video files allowed"));
   },
 });
 
 // ─── AES-128 key generate & keyinfo file banana ───────────────────────────────
-function generateEncryptionKey(outputDir, videoId, serverUrl = "http://localhost:5001") {
+function generateEncryptionKey(
+  outputDir,
+  videoId,
+  serverUrl = "http://localhost:5001",
+) {
   // 16 byte random AES key
   const key = crypto.randomBytes(16);
   const keyHex = key.toString("hex");
-  const iv  = crypto.randomBytes(16).toString("hex");
+  const iv = crypto.randomBytes(16).toString("hex");
 
-  const keyFile     = path.join(outputDir, "enc.key");
+  const keyFile = path.join(outputDir, "enc.key");
   const keyInfoFile = path.join(outputDir, "enc.keyinfo");
 
   // Key file (binary)
@@ -76,7 +85,9 @@ router.post("/upload", auth, upload.single("video"), (req, res) => {
 
   if (meta.length >= 5) {
     if (req.file) fs.unlinkSync(req.file.path);
-    return res.status(400).json({ message: "Maximum 5 videos allowed. Delete one first." });
+    return res
+      .status(400)
+      .json({ message: "Maximum 5 videos allowed. Delete one first." });
   }
 
   const { title } = req.body;
@@ -84,16 +95,18 @@ router.post("/upload", auth, upload.single("video"), (req, res) => {
     if (req.file) fs.unlinkSync(req.file.path);
     return res.status(400).json({ message: "Title is required" });
   }
-  if (!req.file) return res.status(400).json({ message: "Video file is required" });
+  if (!req.file)
+    return res.status(400).json({ message: "Video file is required" });
 
-  const videoId   = "video_" + Date.now();
+  const videoId = "video_" + Date.now();
   const outputDir = path.join(VIDEOS_DIR, videoId);
   fs.mkdirSync(outputDir, { recursive: true });
 
   try {
     const host = req.get("host") || req.headers.host;
     const protocol = req.protocol;
-    const serverUrl = `${protocol}://${host}`;
+    // Naya (sahi) - hamesha HTTPS use karo
+    const serverUrl = `https://${host}`;
     const keyInfoFile = generateEncryptionKey(outputDir, videoId, serverUrl);
 
     // FFmpeg — HLS + AES-128 encryption
@@ -106,7 +119,7 @@ router.post("/upload", auth, upload.single("video"), (req, res) => {
         -hls_key_info_file "${keyInfoFile}" \
         -f hls \
         "${path.join(outputDir, "playlist.m3u8")}"`,
-      { stdio: "pipe" }
+      { stdio: "pipe" },
     );
 
     fs.unlinkSync(req.file.path);
@@ -121,12 +134,24 @@ router.post("/upload", auth, upload.single("video"), (req, res) => {
     meta.push(newVideo);
     writeMeta(meta);
 
-    res.json({ message: "Video uploaded, converted & AES-128 encrypted!", video: newVideo });
+    res.json({
+      message: "Video uploaded, converted & AES-128 encrypted!",
+      video: newVideo,
+    });
   } catch (err) {
-    try { fs.unlinkSync(req.file.path); } catch {}
-    try { fs.rmSync(outputDir, { recursive: true }); } catch {}
+    try {
+      fs.unlinkSync(req.file.path);
+    } catch {}
+    try {
+      fs.rmSync(outputDir, { recursive: true });
+    } catch {}
     console.error("FFmpeg error:", err.message);
-    res.status(500).json({ message: "Conversion failed. Is ffmpeg installed?", error: err.message });
+    res
+      .status(500)
+      .json({
+        message: "Conversion failed. Is ffmpeg installed?",
+        error: err.message,
+      });
   }
 });
 
@@ -137,7 +162,9 @@ router.delete("/videos/:id", auth, (req, res) => {
   const idx = meta.findIndex((v) => v.id === videoId);
   if (idx === -1) return res.status(404).json({ message: "Video not found" });
 
-  try { fs.rmSync(path.join(VIDEOS_DIR, videoId), { recursive: true }); } catch {}
+  try {
+    fs.rmSync(path.join(VIDEOS_DIR, videoId), { recursive: true });
+  } catch {}
   meta.splice(idx, 1);
   writeMeta(meta);
 
