@@ -107,17 +107,20 @@ router.post("/upload", auth, upload.single("video"), (req, res) => {
     const serverUrl = "https://videoprotector-production.up.railway.app";
     const keyInfoFile = generateEncryptionKey(outputDir, videoId, serverUrl);
     // FFmpeg — HLS + AES-128 encryption
-    execSync(
-      `ffmpeg -i "${req.file.path}" \
-        -profile:v baseline -level 3.0 \
-        -start_number 0 \
-        -hls_time 10 \
-        -hls_list_size 0 \
-        -hls_key_info_file "${keyInfoFile}" \
-        -f hls \
-        "${path.join(outputDir, "playlist.m3u8")}"`,
-      { stdio: "pipe" },
-    );
+   execSync(
+  `ffmpeg -i "${req.file.path}" \
+    -vf "scale=1280:720" \
+    -profile:v baseline -level 3.0 \
+    -b:v 1500k \
+    -b:a 128k \
+    -start_number 0 \
+    -hls_time 10 \
+    -hls_list_size 0 \
+    -hls_key_info_file "${keyInfoFile}" \
+    -f hls \
+    "${path.join(outputDir, "playlist.m3u8")}"`,
+  { stdio: "pipe" },
+);
 
     fs.unlinkSync(req.file.path);
 
