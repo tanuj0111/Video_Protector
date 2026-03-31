@@ -5,17 +5,11 @@ RUN apt-get update && apt-get install -y ffmpeg
 
 WORKDIR /app
 
-# Dependencies install karo
-COPY package.json ./
-COPY backend/package.json ./backend/
-COPY frontend/package.json ./frontend/
-
-RUN npm run build
-
-# Poora code copy karo
+# Poora code pehle copy karo
 COPY . .
 
-RUN cd backend && npm install
+# Build karo
+RUN npm run build
 
 EXPOSE 8080
 
