@@ -17,5 +17,8 @@
   "bugs": {
     "url": "https://github.com/tanuj0111/Video_Protector/issues"
   },
-  "homepage": "https://github.com/tanuj0111/Video_Protector#readme"
+  "homepage": "https://github.com/tanuj0111/Video_Protector#readme",
+  "dependencies": {
+    "ffmpeg": "^0.0.4"
+  }
 }
