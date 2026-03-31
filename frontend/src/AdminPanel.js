@@ -1,0 +1,261 @@
+import React, { useState, useEffect, useRef } from "react";
+import { fetchVideos, uploadVideo, deleteVideo } from "./api";
+import "./AdminPanel.css";
+
+export default function AdminPanel() {
+  const [videos, setVideos] = useState([]);
+  const [title, setTitle] = useState("");
+  const [file, setFile] = useState(null);
+  const [progress, setProgress] = useState(0);
+  const [uploading, setUploading] = useState(false);
+  const [status, setStatus] = useState(null); // { type: 'success'|'error', msg }
+  const [loading, setLoading] = useState(true);
+  const [dragOver, setDragOver] = useState(false);
+  const fileInputRef = useRef();
+
+  const load = async () => {
+    setLoading(true);
+    try {
+      const data = await fetchVideos();
+      setVideos(Array.isArray(data) ? data : []);
+    } catch {
+      setStatus({ type: "error", msg: "Server se connect nahi ho paya" });
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => { load(); }, []);
+
+  const handleFile = (f) => {
+    if (f && f.type.startsWith("video/")) setFile(f);
+    else setStatus({ type: "error", msg: "Sirf video files allowed hain" });
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setDragOver(false);
+    const f = e.dataTransfer.files[0];
+    if (f) handleFile(f);
+  };
+
+  const handleUpload = async () => {
+    if (!title.trim()) return setStatus({ type: "error", msg: "Title daalna zaroori hai" });
+    if (!file) return setStatus({ type: "error", msg: "Video file select karo" });
+    if (videos.length >= 5) return setStatus({ type: "error", msg: "Maximum 5 videos ho sakti hain. Pehle koi delete karo." });
+
+    setUploading(true);
+    setProgress(0);
+    setStatus(null);
+
+    try {
+      const res = await uploadVideo(title, file, setProgress);
+      if (res.video) {
+        setStatus({ type: "success", msg: `"${res.video.title}" upload ho gaya!` });
+        setTitle("");
+        setFile(null);
+        setProgress(0);
+        await load();
+      } else {
+        setStatus({ type: "error", msg: res.message || "Upload fail ho gaya" });
+      }
+    } catch (e) {
+      setStatus({ type: "error", msg: e.message });
+    }
+    setUploading(false);
+  };
+
+  const handleDelete = async (id, videoTitle) => {
+    if (!window.confirm(`"${videoTitle}" delete karna chahte ho?`)) return;
+    try {
+      await deleteVideo(id);
+      setStatus({ type: "success", msg: `"${videoTitle}" delete ho gaya` });
+      await load();
+    } catch {
+      setStatus({ type: "error", msg: "Delete fail ho gaya" });
+    }
+  };
+
+  const formatDate = (iso) =>
+    new Date(iso).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
+
+  return (
+    <div className="admin-root">
+      {/* ── Sidebar ── */}
+      <aside className="sidebar">
+        <div className="sidebar-logo">
+          <span className="logo-icon">▶</span>
+          <span className="logo-text">VaultStream</span>
+        </div>
+        <nav className="sidebar-nav">
+          <a className="nav-item active">
+            <span>⊞</span> Dashboard
+          </a>
+          <a className="nav-item">
+            <span>↑</span> Upload
+          </a>
+          <a className="nav-item">
+            <span>⚙</span> Settings
+          </a>
+        </nav>
+        <div className="sidebar-footer">
+          <div className="video-quota">
+            <div className="quota-label">Video Slots</div>
+            <div className="quota-bar">
+              <div className="quota-fill" style={{ width: `${(videos.length / 5) * 100}%` }} />
+            </div>
+            <div className="quota-count">{videos.length} / 5 used</div>
+          </div>
+        </div>
+      </aside>
+
+      {/* ── Main ── */}
+      <main className="admin-main">
+        <header className="admin-header">
+          <div>
+            <h1 className="page-title">Admin Panel</h1>
+            <p className="page-sub">Apni secure HLS videos manage karo</p>
+          </div>
+          <div className="header-badge">
+            <span className="dot" /> Live
+          </div>
+        </header>
+
+        {/* Status */}
+        {status && (
+          <div className={`status-bar ${status.type}`}>
+            {status.type === "success" ? "✓" : "✕"} {status.msg}
+            <button className="status-close" onClick={() => setStatus(null)}>×</button>
+          </div>
+        )}
+
+        {/* ── Upload Card ── */}
+        <section className="card upload-card">
+          <h2 className="card-title">
+            <span className="card-icon">↑</span> Nayi Video Upload Karo
+            {videos.length >= 5 && <span className="limit-badge">Limit Reached</span>}
+          </h2>
+
+          <div className="upload-form">
+            <div className="field">
+              <label className="field-label">Video Title *</label>
+              <input
+                className="field-input"
+                type="text"
+                placeholder="e.g. Introduction to React..."
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                disabled={uploading || videos.length >= 5}
+                maxLength={80}
+              />
+              <span className="char-count">{title.length}/80</span>
+            </div>
+
+            <div className="field">
+              <label className="field-label">Video File *</label>
+              <div
+                className={`drop-zone ${dragOver ? "drag-active" : ""} ${file ? "has-file" : ""}`}
+                onClick={() => !uploading && videos.length < 5 && fileInputRef.current.click()}
+                onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+                onDragLeave={() => setDragOver(false)}
+                onDrop={handleDrop}
+              >
+                {file ? (
+                  <div className="file-info">
+                    <span className="file-icon">🎬</span>
+                    <span className="file-name">{file.name}</span>
+                    <span className="file-size">({(file.size / 1024 / 1024).toFixed(1)} MB)</span>
+                    {!uploading && (
+                      <button className="file-remove" onClick={(e) => { e.stopPropagation(); setFile(null); }}>×</button>
+                    )}
+                  </div>
+                ) : (
+                  <div className="drop-placeholder">
+                    <div className="drop-icon">☁</div>
+                    <div className="drop-text">Yahan drag karo ya click karo</div>
+                    <div className="drop-sub">MP4, MOV, MKV, AVI, WebM • Max 500MB</div>
+                  </div>
+                )}
+              </div>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="video/*"
+                style={{ display: "none" }}
+                onChange={(e) => e.target.files[0] && handleFile(e.target.files[0])}
+              />
+            </div>
+
+            {uploading && (
+              <div className="progress-wrap">
+                <div className="progress-bar">
+                  <div className="progress-fill" style={{ width: `${progress}%` }} />
+                </div>
+                <span className="progress-text">
+                  {progress < 100 ? `Uploading... ${progress}%` : "Converting to HLS... Please wait"}
+                </span>
+              </div>
+            )}
+
+            <button
+              className="upload-btn"
+              onClick={handleUpload}
+              disabled={uploading || videos.length >= 5}
+            >
+              {uploading ? (
+                <><span className="spinner" /> Processing...</>
+              ) : (
+                <><span>↑</span> Upload & Convert to HLS</>
+              )}
+            </button>
+          </div>
+        </section>
+
+        {/* ── Videos List ── */}
+        <section className="card videos-card">
+          <h2 className="card-title">
+            <span className="card-icon">⊞</span> Uploaded Videos
+            <span className="video-count">{videos.length}</span>
+          </h2>
+
+          {loading ? (
+            <div className="loading-state">
+              <div className="spinner large" /> Loading...
+            </div>
+          ) : videos.length === 0 ? (
+            <div className="empty-state">
+              <div className="empty-icon">📹</div>
+              <p>Koi video nahi hai abhi.<br />Upar se pehli video upload karo!</p>
+            </div>
+          ) : (
+            <div className="videos-list">
+              {videos.map((v, i) => (
+                <div className="video-row" key={v.id}>
+                  <div className="video-thumb">
+                    <span>{i + 1}</span>
+                  </div>
+                  <div className="video-info">
+                    <div className="video-title">{v.title}</div>
+                    <div className="video-meta">
+                      <span className="hls-badge">HLS</span>
+                      <span className="video-date">{formatDate(v.uploadedAt)}</span>
+                    </div>
+                    <div className="video-id">{v.id}</div>
+                  </div>
+                  <div className="video-actions">
+                    <button
+                      className="delete-btn"
+                      onClick={() => handleDelete(v.id, v.title)}
+                      title="Delete karo"
+                    >
+                      🗑 Delete
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+      </main>
+    </div>
+  );
+}

@@ -1,0 +1,189 @@
+/* ═══════════════════════════════════════════════════════════════
+   VaultStream — VideoPlayer CSS
+═══════════════════════════════════════════════════════════════ */
+
+/* ── Outer wrapper ────────────────────────────────────────────── */
+.player-outer {
+  width: 100%;
+  background: #111;
+  border-radius: 10px;
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+}
+
+/* ── Ratio Selector Bar ───────────────────────────────────────── */
+.ratio-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: #1a1a1a;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+
+.ratio-btn {
+  padding: 5px 16px;
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.18);
+  background: rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.55);
+  font-size: 13px;
+  font-family: monospace;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  outline: none;
+}
+
+.ratio-btn:hover {
+  background: rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.85);
+  border-color: rgba(255,255,255,0.35);
+}
+
+.ratio-btn--active {
+  background: #e53935;
+  border-color: #e53935;
+  color: #fff;
+}
+
+.ratio-btn--active:hover {
+  background: #c62828;
+  border-color: #c62828;
+}
+
+/* ── Ratio Box ────────────────────────────────────────────────── */
+.ratio-box {
+  position: relative;
+  width: 100%;
+  margin: 0 auto;
+  background: #000;
+  overflow: hidden;
+}
+
+/* ── Video — ratio-box fill kare ─────────────────────────────── */
+.ratio-box video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  z-index: 1;
+}
+
+/* ── video-shield ─────────────────────────────────────────────── */
+.video-shield {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: transparent;
+}
+
+/* ── Diagonal Canvas Watermark ────────────────────────────────── */
+.diagonal-watermark {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 3;
+  pointer-events: none;
+}
+
+/* ── Corner Watermark ─────────────────────────────────────────── */
+.watermark {
+  position: absolute;
+  bottom: 44px;
+  right: 10px;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  pointer-events: none;
+}
+
+.watermark-text {
+  font-size: 11px;
+  font-family: monospace;
+  color: rgba(255,255,255,0.55);
+  letter-spacing: 0.5px;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.9);
+}
+
+.watermark-time {
+  font-size: 10px;
+  font-family: monospace;
+  color: rgba(255,255,255,0.3);
+}
+
+/* ── Blocked Overlay ──────────────────────────────────────────── */
+.screen-block {
+  position: absolute;
+  inset: 0;
+  z-index: 100;
+  background: rgba(0,0,0,0.94);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 24px;
+  gap: 10px;
+  animation: fadeBlock 0.15s ease;
+}
+
+@keyframes fadeBlock {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.screen-block-icon {
+  font-size: 44px;
+  line-height: 1;
+}
+
+.screen-block-text {
+  color: #ff4444;
+  font-size: 18px;
+  font-weight: 700;
+  font-family: monospace;
+  letter-spacing: 0.4px;
+  text-shadow: 0 0 18px rgba(255,68,68,0.5);
+}
+
+/* Reason — kya block hua yeh explain karta hai */
+.screen-block-reason {
+  color: rgba(255, 180, 180, 0.75);
+  font-size: 12px;
+  font-family: monospace;
+  letter-spacing: 0.3px;
+  padding: 4px 12px;
+  border: 1px solid rgba(255,68,68,0.25);
+  border-radius: 4px;
+  background: rgba(255,68,68,0.08);
+}
+
+.screen-block-session {
+  color: rgba(255,255,255,0.35);
+  font-size: 11px;
+  font-family: monospace;
+  margin-top: 4px;
+}
+
+/* ── Global Protections ───────────────────────────────────────── */
+.ratio-box *,
+.ratio-box video {
+  -webkit-touch-callout: none;
+  -webkit-user-drag: none;
+}
+
+/* Print pe hide ──────────────────────────────────────────────── */
+@media print {
+  .player-outer { display: none !important; }
+}

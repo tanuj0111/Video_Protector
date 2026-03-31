@@ -1,0 +1,125 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@700&family=DM+Sans:wght@400;500;600&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: #0a0a0f;
+  color: #e8e8f0;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.app { min-height: 100vh; display: flex; flex-direction: column; }
+
+.app-header {
+  padding: 18px 32px;
+  border-bottom: 1px solid #2a2a35;
+  background: #111118;
+}
+
+.app-logo {
+  font-family: 'Space Mono', monospace;
+  font-size: 18px;
+  font-weight: 700;
+  color: #7c6dfa;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.app-body {
+  display: flex;
+  flex: 1;
+  gap: 0;
+}
+
+.player-section {
+  flex: 1;
+  padding: 32px;
+}
+
+.player-section video {
+  border-radius: 12px;
+  background: #000;
+  width: 100%;
+}
+
+.player-wrap { margin-bottom: 16px; }
+
+.now-playing {
+  font-size: 20px;
+  font-weight: 600;
+  color: #e8e8f0;
+  margin-top: 16px;
+}
+
+.no-video {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 300px;
+  color: #555570;
+  font-size: 16px;
+  border: 2px dashed #2a2a35;
+  border-radius: 12px;
+}
+
+.playlist {
+  width: 300px;
+  background: #111118;
+  border-left: 1px solid #2a2a35;
+  padding: 24px 16px;
+}
+
+.playlist-title {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #555570;
+  margin-bottom: 16px;
+  padding: 0 4px;
+}
+
+.playlist-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 9px;
+  cursor: pointer;
+  transition: background 0.15s;
+  margin-bottom: 6px;
+}
+
+.playlist-item:hover { background: #18181f; }
+.playlist-item.active { background: rgba(124,109,250,0.15); }
+
+.playlist-thumb {
+  width: 38px; height: 38px;
+  background: #18181f;
+  border-radius: 8px;
+  display: grid; place-items: center;
+  color: #7c6dfa;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+.playlist-item.active .playlist-thumb { background: #7c6dfa; color: #fff; }
+
+.playlist-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #e8e8f0;
+  margin-bottom: 3px;
+}
+
+.playlist-badge {
+  font-size: 10px;
+  color: #555570;
+  font-family: 'Space Mono', monospace;
+}
+
+@media (max-width: 768px) {
+  .app-body { flex-direction: column; }
+  .playlist { width: 100%; border-left: none; border-top: 1px solid #2a2a35; }
+  .player-section { padding: 16px; }
+}
