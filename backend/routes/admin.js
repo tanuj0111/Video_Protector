@@ -104,8 +104,6 @@ router.post("/upload", auth, upload.single("video"), (req, res) => {
 
   try {
     const host = req.get("host") || req.headers.host;
-    const protocol = req.protocol;
-    // Naya (sahi) - hamesha HTTPS use karo
     const serverUrl = `https://${host}`;
     const keyInfoFile = generateEncryptionKey(outputDir, videoId, serverUrl);
 

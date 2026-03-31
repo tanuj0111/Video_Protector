@@ -1,5 +1,5 @@
 export const BASE_URL =
-  process.env.REACT_APP_API_URL || "https://video-protector-1.onrender.com";;
+  process.env.REACT_APP_API_URL || "https://videoprotector-production.up.railway.app/";
 
 export const TOKEN = "secure_token_123";
 
