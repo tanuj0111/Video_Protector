@@ -8,9 +8,13 @@ const router = express.Router();
 const VIDEOS_DIR = path.join(__dirname, "../videos");
 
 function getBaseUrl(req) {
+  // Railway pe req.protocol 'http' return karta hai, isliye hardcode
   const host = req.get("host") || req.headers.host;
-  const protocol = req.protocol;
-  return `${protocol}://${host}`;
+  if (host && host.includes("railway.app")) {
+    return "https://" + host;
+  }
+  // Local development ke liye original logic
+  return `${req.protocol}://${host}`;
 }
 
 router.get("/:videoId/playlist.m3u8", auth, (req, res) => {
