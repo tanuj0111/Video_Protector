@@ -1,12 +1,6 @@
-const getServerUrl = () => {
-  const hostname = window.location.hostname;
-  if (hostname === "localhost" || hostname === "127.0.0.1") {
-    return "http://localhost:5001";
-  }
-  return `http://${hostname}:5001`;
-};
+export const BASE_URL =
+  process.env.REACT_APP_API_URL || "http://localhost:5001";
 
-export const BASE_URL = getServerUrl();
 export const TOKEN = "secure_token_123";
 
 export const HEADERS = {
