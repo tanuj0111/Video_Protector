@@ -1,0 +1,12 @@
+[phases.setup]
+nixPkgs = ["nodejs", "ffmpeg"]
+
+[phases.install]
+cmds = [
+  "cd /workspace/frontend && npm install && npm run build",
+  "cd /workspace/backend && npm install"
+]
+
+[start]
+cmd = "node server.js"
+ 
