@@ -20,10 +20,12 @@ app.use("/api/video", videoRoutes);
 app.use("/api/admin", adminRoutes);
 
 // ✅ Static + Catch-all SABSE LAST MEIN
-app.use(express.static(path.join(__dirname, "../frontend/build")));
+// Naya (sahi) - __dirname se relative path
+const frontendBuild = path.join(__dirname, "..", "frontend", "build");
 
+app.use(express.static(frontendBuild));
 app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "../frontend/build", "index.html"));
+  res.sendFile(path.join(frontendBuild, "index.html"));
 });
 
 const PORT = process.env.PORT || 5001;
