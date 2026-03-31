@@ -51,7 +51,7 @@ const upload = multer({
 function generateEncryptionKey(
   outputDir,
   videoId,
-  serverUrl = "http://localhost:5001",
+  serverUrl = "https://videoprotector-production.up.railway.app",
 ) {
   // 16 byte random AES key
   const key = crypto.randomBytes(16);
