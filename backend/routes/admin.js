@@ -103,9 +103,7 @@ router.post("/upload", auth, upload.single("video"), (req, res) => {
   fs.mkdirSync(outputDir, { recursive: true });
 
  try {
-    const rawHost = req.headers['x-forwarded-host'] || req.get("host") || req.headers.host;
-    const host = rawHost.split(':')[0]; // port hataao
-    const serverUrl = `https://${host}`;
+    const serverUrl = "https://videoprotector-production.up.railway.app";
     const keyInfoFile = generateEncryptionKey(outputDir, videoId, serverUrl);
     // FFmpeg — HLS + AES-128 encryption
     execSync(
