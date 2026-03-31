@@ -103,6 +103,7 @@ router.post("/upload", auth, upload.single("video"), (req, res) => {
   fs.mkdirSync(outputDir, { recursive: true });
 
  try {
+  // serverUrl fix: https hardcoded - v2
     const serverUrl = "https://videoprotector-production.up.railway.app";
     const keyInfoFile = generateEncryptionKey(outputDir, videoId, serverUrl);
     // FFmpeg — HLS + AES-128 encryption
