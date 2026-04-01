@@ -77,7 +77,7 @@ export default function VideoPlayer({ video, userInfo = "user@vaultstream.local"
       setBlockedRef.current(false);
       setBlockReasonRef.current("");
       blockTimerRef.current = null;
-    }, 30000);
+    }, 180000); // 3 minutes
   };
 
   // ── HLS Setup ──────────────────────────────────────────────────────────────
@@ -90,6 +90,18 @@ export default function VideoPlayer({ video, userInfo = "user@vaultstream.local"
       const hls = new Hls({
         xhrSetup: (xhr) => xhr.setRequestHeader("Authorization", TOKEN),
       });
+          // ── YEH ADD KARO ──
+    hls.on(Hls.Events.MANIFEST_PARSED, () => {
+      // Manifest load hone ke baad hi play allow karo
+      videoEl.pause();
+    });
+
+    hls.on(Hls.Events.ERROR, (event, data) => {
+      if (data.fatal) {
+        triggerBlockRef.current("Stream error detected");
+      }
+    });
+    // ── YEH ADD KARO END ──
       hls.loadSource(src);
       hls.attachMedia(videoEl);
       hlsRef.current = hls;
@@ -443,7 +455,7 @@ export default function VideoPlayer({ video, userInfo = "user@vaultstream.local"
         />
 
         <div className="watermark">
-          <span className="watermark-text">VaultStream • Protected</span>
+          <span className="watermark-text">AmazDraw Animation Studio</span>
           <span className="watermark-time">{time}</span>
         </div>
       </div>
@@ -467,10 +479,10 @@ function DiagonalWatermark({ userInfo }) {
       ctx.clearRect(0, 0, W, H);
       ctx.save();
       ctx.font = "bold 13px monospace";
-      ctx.fillStyle = "rgba(255,255,255,0.12)";
+      ctx.fillStyle = "rgba(225, 211, 12, 0.33)";
       ctx.translate(W / 2, H / 2);
       ctx.rotate(-Math.PI / 6);
-      const label = `${userInfo}  •  VaultStream  •  Protected`;
+      const label = `${userInfo}`;
       const diag = Math.ceil(Math.sqrt(W * W + H * H));
       const colSpc = 200, rowSpc = 55;
       const cols = Math.ceil(diag / colSpc) + 2;

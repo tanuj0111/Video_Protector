@@ -53,7 +53,7 @@ function App() {
         <div className="player-section">
           {selected ? (
             <>
-              <VideoPlayer video={selected} userInfo="tanuj.admin@demo.com - +91 9876543210" />
+              <VideoPlayer video={selected} userInfo="AmazDraw Animation Studio." />
               <h2 className="now-playing">{selected.title}</h2>
             </>
           ) : (
