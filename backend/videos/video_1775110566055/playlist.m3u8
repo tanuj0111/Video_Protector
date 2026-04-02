@@ -1,8 +1,0 @@
-#EXTM3U
-#EXT-X-VERSION:3
-#EXT-X-TARGETDURATION:9
-#EXT-X-MEDIA-SEQUENCE:0
-#EXT-X-KEY:METHOD=AES-128,URI="https://videoprotector-production.up.railway.app/api/video/video_1775110566055/enc.key",IV=0x9957deb0d959597ac6663d3f25c72b19
-#EXTINF:8.600000,
-playlist0.ts
-#EXT-X-ENDLIST
