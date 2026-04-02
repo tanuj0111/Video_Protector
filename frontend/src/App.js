@@ -44,7 +44,7 @@ function App() {
     <div className="app">
       <header className="app-header">
         <div className="app-logo">
-          <span>▶</span> VaultStream
+          <span>▶</span> SecureStream
         </div>
         <div className="app-header-badge">🔒 Secure Content</div>
       </header>
@@ -53,7 +53,7 @@ function App() {
         <div className="player-section">
           {selected ? (
             <>
-              <VideoPlayer video={selected} userInfo="AmazDraw Animation Studio." />
+              <VideoPlayer video={selected} userInfo="" />
               <h2 className="now-playing">{selected.title}</h2>
             </>
           ) : (

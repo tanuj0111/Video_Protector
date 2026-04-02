@@ -3,11 +3,11 @@ import Hls from "hls.js";
 import { BASE_URL, TOKEN } from "./api";
 import "./Videoplayer.css";
 
-const RATIOS = [
-  { label: "16:9", value: "16/9" },
-  { label: "9:16", value: "9/16" },
-  { label: "1:1", value: "1/1" },
-];
+// const RATIOS = [
+//   { label: "16:9", value: "16/9" },
+//   { label: "9:16", value: "9/16" },
+//   { label: "1:1", value: "1/1" },
+// ];
 
 // ── Allowed single keys — jo press ho sakti hain akele ─────────────────────────
 // Sirf yeh keys allowed hain: arrows, space (pause/play), F (fullscreen),
@@ -406,7 +406,7 @@ export default function VideoPlayer({ video, userInfo = "user@vaultstream.local"
     <div className="player-outer" onContextMenu={(e) => e.preventDefault()}>
 
       {/* ── Ratio Selector ──────────────────────────────────────────────── */}
-      <div className="ratio-bar">
+      {/* <div className="ratio-bar">
         {RATIOS.map((r) => (
           <button
             key={r.value}
@@ -417,7 +417,7 @@ export default function VideoPlayer({ video, userInfo = "user@vaultstream.local"
             {r.label}
           </button>
         ))}
-      </div>
+      </div> */}
 
       {/* ── Ratio Box ───────────────────────────────────────────────────── */}
       <div
@@ -455,7 +455,7 @@ export default function VideoPlayer({ video, userInfo = "user@vaultstream.local"
         />
 
         <div className="watermark">
-          <span className="watermark-text">AmazDraw Animation Studio</span>
+          {/* <span className="watermark-text">AmazDraw Animation Studio</span> */}
           <span className="watermark-time">{time}</span>
         </div>
       </div>

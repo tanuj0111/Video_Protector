@@ -83,13 +83,6 @@ router.get("/videos", auth, (req, res) => {
 router.post("/upload", auth, upload.single("video"), (req, res) => {
   const meta = readMeta();
 
-  if (meta.length >= 5) {
-    if (req.file) fs.unlinkSync(req.file.path);
-    return res
-      .status(400)
-      .json({ message: "Maximum 5 videos allowed. Delete one first." });
-  }
-
   const { title } = req.body;
   if (!title || !title.trim()) {
     if (req.file) fs.unlinkSync(req.file.path);

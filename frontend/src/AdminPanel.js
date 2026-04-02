@@ -41,7 +41,6 @@ export default function AdminPanel() {
   const handleUpload = async () => {
     if (!title.trim()) return setStatus({ type: "error", msg: "Title daalna zaroori hai" });
     if (!file) return setStatus({ type: "error", msg: "Video file select karo" });
-    if (videos.length >= 5) return setStatus({ type: "error", msg: "Maximum 5 videos ho sakti hain. Pehle koi delete karo." });
 
     setUploading(true);
     setProgress(0);
@@ -99,11 +98,11 @@ export default function AdminPanel() {
         </nav>
         <div className="sidebar-footer">
           <div className="video-quota">
-            <div className="quota-label">Video Slots</div>
+            <div className="quota-label">Total Videos</div>
             <div className="quota-bar">
-              <div className="quota-fill" style={{ width: `${(videos.length / 5) * 100}%` }} />
+              <div className="quota-fill" style={{ width: `100%` }} />
             </div>
-            <div className="quota-count">{videos.length} / 5 used</div>
+            <div className="quota-count">{videos.length} videos</div>
           </div>
         </div>
       </aside>
@@ -131,8 +130,7 @@ export default function AdminPanel() {
         {/* ── Upload Card ── */}
         <section className="card upload-card">
           <h2 className="card-title">
-            <span className="card-icon">↑</span> Nayi Video Upload Karo
-            {videos.length >= 5 && <span className="limit-badge">Limit Reached</span>}
+            <span className="card-icon">↑</span> upload new video
           </h2>
 
           <div className="upload-form">
@@ -144,7 +142,7 @@ export default function AdminPanel() {
                 placeholder="e.g. Introduction to React..."
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                disabled={uploading || videos.length >= 5}
+                disabled={uploading}
                 maxLength={80}
               />
               <span className="char-count">{title.length}/80</span>
@@ -154,7 +152,7 @@ export default function AdminPanel() {
               <label className="field-label">Video File *</label>
               <div
                 className={`drop-zone ${dragOver ? "drag-active" : ""} ${file ? "has-file" : ""}`}
-                onClick={() => !uploading && videos.length < 5 && fileInputRef.current.click()}
+                onClick={() => !uploading && fileInputRef.current.click()}
                 onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
                 onDragLeave={() => setDragOver(false)}
                 onDrop={handleDrop}
@@ -171,7 +169,7 @@ export default function AdminPanel() {
                 ) : (
                   <div className="drop-placeholder">
                     <div className="drop-icon">☁</div>
-                    <div className="drop-text">Yahan drag karo ya click karo</div>
+                    <div className="drop-text">drag video here</div>
                     <div className="drop-sub">MP4, MOV, MKV, AVI, WebM • Max 500MB</div>
                   </div>
                 )}
@@ -199,7 +197,7 @@ export default function AdminPanel() {
             <button
               className="upload-btn"
               onClick={handleUpload}
-              disabled={uploading || videos.length >= 5}
+              disabled={uploading}
             >
               {uploading ? (
                 <><span className="spinner" /> Processing...</>
