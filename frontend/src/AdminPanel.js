@@ -41,8 +41,8 @@ export default function AdminPanel() {
   };
 
   const handleUpload = async () => {
-    if (!title.trim()) return setStatus({ type: "error", msg: "Title daalna zaroori hai" });
-    if (!file) return setStatus({ type: "error", msg: "Video file select karo" });
+    if (!title.trim()) return setStatus({ type: "error", msg: "Title mandatory" });
+    if (!file) return setStatus({ type: "error", msg: "Select a video file" });
 
     setUploading(true);
     setProgress(0);

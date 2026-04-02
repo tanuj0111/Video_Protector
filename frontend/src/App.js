@@ -85,7 +85,7 @@ function App() {
                       📄 PDF available
                     </a>
                   ) : (
-                    <span className="pdf-none">PDF nahi hai</span>
+                    <span className="pdf-none">PDF not available</span>
                   )}
                 </div>
               </div>
