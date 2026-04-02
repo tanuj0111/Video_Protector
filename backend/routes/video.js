@@ -37,6 +37,16 @@ router.get("/:videoId/playlist.m3u8", auth, (req, res) => {
   res.send(playlist);
 });
 
+router.get("/:videoId/document.pdf", (req, res) => {
+  const videoId = req.params.videoId.replace(/[^a-zA-Z0-9_-]/g, "");
+  const pdfPath = path.join(VIDEOS_DIR, videoId, "document.pdf");
+  if (!fs.existsSync(pdfPath)) {
+    return res.status(404).json({ message: "PDF not found" });
+  }
+  res.setHeader("Content-Type", "application/pdf");
+  res.sendFile(pdfPath);
+});
+
 router.get("/:videoId/:file", auth, (req, res) => {
   const videoId = req.params.videoId.replace(/[^a-zA-Z0-9_-]/g, "");
   const file    = req.params.file.replace(/[^a-zA-Z0-9_.\-]/g, "");

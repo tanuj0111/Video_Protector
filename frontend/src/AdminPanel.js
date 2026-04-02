@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { fetchVideos, uploadVideo, deleteVideo } from "./api";
+import { fetchVideos, uploadVideo, deleteVideo, uploadPdf, deletePdf } from "./api";
 import "./AdminPanel.css";
 
 export default function AdminPanel() {
@@ -11,7 +11,9 @@ export default function AdminPanel() {
   const [status, setStatus] = useState(null); // { type: 'success'|'error', msg }
   const [loading, setLoading] = useState(true);
   const [dragOver, setDragOver] = useState(false);
+  const [pdfUploadingId, setPdfUploadingId] = useState(null);
   const fileInputRef = useRef();
+  const pdfInputRef = useRef();
 
   const load = async () => {
     setLoading(true);
@@ -68,6 +70,43 @@ export default function AdminPanel() {
     try {
       await deleteVideo(id);
       setStatus({ type: "success", msg: `"${videoTitle}" delete ho gaya` });
+      await load();
+    } catch {
+      setStatus({ type: "error", msg: "Delete fail ho gaya" });
+    }
+  };
+
+  const handleUploadPdf = async (videoId) => {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = ".pdf";
+    input.onchange = async (e) => {
+      const pdfFile = e.target.files?.[0];
+      if (!pdfFile) return;
+      
+      if (pdfFile.type !== "application/pdf") {
+        setStatus({ type: "error", msg: "Sirf PDF files allowed hain" });
+        return;
+      }
+
+      setPdfUploadingId(videoId);
+      try {
+        const res = await uploadPdf(videoId, pdfFile);
+        setStatus({ type: "success", msg: "PDF add ho gaya!" });
+        await load();
+      } catch (e) {
+        setStatus({ type: "error", msg: e.message || "PDF upload fail ho gaya" });
+      }
+      setPdfUploadingId(null);
+    };
+    input.click();
+  };
+
+  const handleDeletePdf = async (videoId) => {
+    if (!window.confirm("PDF delete karna chahte ho?")) return;
+    try {
+      await deletePdf(videoId);
+      setStatus({ type: "success", msg: "PDF delete ho gaya" });
       await load();
     } catch {
       setStatus({ type: "error", msg: "Delete fail ho gaya" });
@@ -238,8 +277,34 @@ export default function AdminPanel() {
                       <span className="video-date">{formatDate(v.uploadedAt)}</span>
                     </div>
                     <div className="video-id">{v.id}</div>
+                    <div className="video-pdf-status">
+                      {v.pdfUrl ? (
+                        <a href={v.pdfUrl} target="_blank" rel="noreferrer">📄 PDF available</a>
+                      ) : (
+                        <span className="pdf-none">PDF nahi hai</span>
+                      )}
+                    </div>
                   </div>
                   <div className="video-actions">
+                    {v.pdfUrl ? (
+                      <button
+                        className="pdf-btn"
+                        onClick={() => handleDeletePdf(v.id)}
+                        title="PDF delete karo"
+                        disabled={pdfUploadingId === v.id}
+                      >
+                        {pdfUploadingId === v.id ? "⏳" : "📄"} Delete PDF
+                      </button>
+                    ) : (
+                      <button
+                        className="pdf-btn add"
+                        onClick={() => handleUploadPdf(v.id)}
+                        title="PDF add karo"
+                        disabled={pdfUploadingId === v.id}
+                      >
+                        {pdfUploadingId === v.id ? "⏳" : "📄"} Add PDF
+                      </button>
+                    )}
                     <button
                       className="delete-btn"
                       onClick={() => handleDelete(v.id, v.title)}

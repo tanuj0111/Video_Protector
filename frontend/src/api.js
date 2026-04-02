@@ -36,10 +36,45 @@ export async function uploadVideo(title, file, onProgress) {
     };
 
     xhr.onload = () => {
-      try { resolve(JSON.parse(xhr.responseText)); }
-      catch { reject(new Error("Invalid response")); }
+      try {
+        const response = JSON.parse(xhr.responseText);
+        resolve(response);
+      } catch (e) {
+        console.error("Parse error:", e, "Response:", xhr.responseText, "Status:", xhr.status);
+        reject(new Error(`Server error: ${xhr.status} - ${xhr.responseText.substring(0, 200)}`));
+      }
     };
     xhr.onerror = () => reject(new Error("Network error"));
     xhr.send(formData);
   });
+}
+
+export async function uploadPdf(videoId, pdfFile) {
+  return new Promise((resolve, reject) => {
+    const formData = new FormData();
+    formData.append("pdf", pdfFile);
+
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", `${BASE_URL}/api/admin/videos/${videoId}/pdf`);
+    xhr.setRequestHeader("Authorization", TOKEN);
+
+    xhr.onload = () => {
+      try {
+        const response = JSON.parse(xhr.responseText);
+        resolve(response);
+      } catch (e) {
+        reject(new Error(`Server error: ${xhr.status}`));
+      }
+    };
+    xhr.onerror = () => reject(new Error("Network error"));
+    xhr.send(formData);
+  });
+}
+
+export async function deletePdf(videoId) {
+  const res = await fetch(`${BASE_URL}/api/admin/videos/${videoId}/pdf`, {
+    method: "DELETE",
+    headers: HEADERS,
+  });
+  return res.json();
 }

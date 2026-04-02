@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import VideoPlayer from "./VideoPlayer";
-import { fetchVideos } from "./api";
+import { fetchVideos, BASE_URL } from "./api";
 import "./App.css";
 
 function App() {
@@ -75,6 +75,19 @@ function App() {
               <div className="playlist-info">
                 <div className="playlist-name">{v.title}</div>
                 <div className="playlist-badge">🔐 HLS Encrypted</div>
+                <div className="playlist-pdf-status">
+                  {v.pdfUrl ? (
+                    <a
+                      href={v.pdfUrl.startsWith("http") ? v.pdfUrl : `${BASE_URL}${v.pdfUrl}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      📄 PDF available
+                    </a>
+                  ) : (
+                    <span className="pdf-none">PDF nahi hai</span>
+                  )}
+                </div>
               </div>
             </div>
           ))}

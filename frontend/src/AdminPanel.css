@@ -441,6 +441,61 @@ body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-s
   transform: translateY(-1px);
 }
 
+.pdf-btn {
+  background: rgba(124,109,250,0.1);
+  border: 1px solid rgba(124,109,250,0.25);
+  color: var(--accent);
+  padding: 7px 14px;
+  border-radius: 7px;
+  font-size: 13px;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+  margin-right: 8px;
+}
+
+.pdf-btn:hover {
+  background: rgba(124,109,250,0.2);
+  border-color: var(--accent);
+  transform: translateY(-1px);
+}
+
+.pdf-btn.add {
+  background: rgba(74,222,128,0.1);
+  border-color: rgba(74,222,128,0.25);
+  color: var(--success);
+}
+
+.pdf-btn.add:hover {
+  background: rgba(74,222,128,0.2);
+  border-color: var(--success);
+}
+
+.pdf-btn:disabled,
+.delete-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.video-pdf-status {
+  margin-top: 8px;
+  font-size: 12px;
+}
+
+.video-pdf-status a {
+  color: #7c6dfa;
+  text-decoration: none;
+}
+
+.video-pdf-status a:hover {
+  text-decoration: underline;
+}
+
+.pdf-none {
+  color: #8888aa;
+}
+
 /* ── Responsive ── */
 @media (max-width: 768px) {
   .sidebar { display: none; }

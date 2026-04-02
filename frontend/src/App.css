@@ -118,6 +118,45 @@ body {
   font-family: 'Space Mono', monospace;
 }
 
+.playlist-pdf-status {
+  margin-top: 4px;
+  font-size: 11px;
+}
+
+.playlist-pdf-status a {
+  color: #7c6dfa;
+  text-decoration: none;
+}
+
+.playlist-pdf-status a:hover {
+  text-decoration: underline;
+}
+
+.pdf-none {
+  color: #8888aa;
+}
+
+.pdf-section {
+  margin-top: 20px;
+}
+
+.pdf-download-btn {
+  display: inline-block;
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #7c6dfa 0%, #5a52d5 100%);
+  color: #fff;
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.pdf-download-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(124, 109, 250, 0.3);
+}
+
 @media (max-width: 768px) {
   .app-body { flex-direction: column; }
   .playlist { width: 100%; border-left: none; border-top: 1px solid #2a2a35; }
