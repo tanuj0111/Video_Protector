@@ -26,7 +26,7 @@ export default function AdminPanel() {
       const data = await fetchVideos();
       setVideos(Array.isArray(data) ? data : []);
     } catch {
-      setStatus({ type: "error", msg: "Server se connect nahi ho paya" });
+      setStatus({ type: "error", msg: "Server not connected" });
     }
     setLoading(false);
   };
@@ -35,7 +35,7 @@ export default function AdminPanel() {
 
   const handleFile = (f) => {
     if (f && f.type.startsWith("video/")) setFile(f);
-    else setStatus({ type: "error", msg: "Sirf video files allowed hain" });
+    else setStatus({ type: "error", msg: "Only video files are allowed" });
   };
 
   const handleDrop = (e) => {
@@ -63,7 +63,7 @@ export default function AdminPanel() {
 
       const res = await uploadVideo(title, file, folderToUse, setProgress);
       if (res.video) {
-        setStatus({ type: "success", msg: `"${res.video.title}" upload ho gaya!` });
+        setStatus({ type: "success", msg: `"${res.video.title}" uploaded successfully` });
         setTitle("");
         setFile(null);
         setProgress(0);
@@ -71,7 +71,7 @@ export default function AdminPanel() {
         setShowNewFolder(false);
         await load();
       } else {
-        setStatus({ type: "error", msg: res.message || "Upload fail ho gaya" });
+        setStatus({ type: "error", msg: res.message || "Upload failed" });
       }
     } catch (e) {
       setStatus({ type: "error", msg: e.message });
@@ -80,13 +80,13 @@ export default function AdminPanel() {
   };
 
   const handleDelete = async (id, videoTitle) => {
-    if (!window.confirm(`"${videoTitle}" delete karna chahte ho?`)) return;
+    if (!window.confirm(`"${videoTitle}" do you want to delete?`)) return;
     try {
       await deleteVideo(id);
-      setStatus({ type: "success", msg: `"${videoTitle}" delete ho gaya` });
+      setStatus({ type: "success", msg: `"${videoTitle}" deleted successfully` });
       await load();
     } catch {
-      setStatus({ type: "error", msg: "Delete fail ho gaya" });
+      setStatus({ type: "error", msg: "Delete failed" });
     }
   };
 
@@ -99,17 +99,17 @@ export default function AdminPanel() {
       if (!pdfFile) return;
       
       if (pdfFile.type !== "application/pdf") {
-        setStatus({ type: "error", msg: "Sirf PDF files allowed hain" });
+        setStatus({ type: "error", msg: "Only PDF files are allowed" });
         return;
       }
 
       setPdfUploadingId(videoId);
       try {
         const res = await uploadPdf(videoId, pdfFile);
-        setStatus({ type: "success", msg: "PDF add ho gaya!" });
+        setStatus({ type: "success", msg: "PDF added successfully!" });
         await load();
       } catch (e) {
-        setStatus({ type: "error", msg: e.message || "PDF upload fail ho gaya" });
+        setStatus({ type: "error", msg: e.message || "PDF upload failed" });
       }
       setPdfUploadingId(null);
     };
@@ -117,13 +117,13 @@ export default function AdminPanel() {
   };
 
   const handleDeletePdf = async (videoId) => {
-    if (!window.confirm("PDF delete karna chahte ho?")) return;
+    if (!window.confirm("Are you sure you want to delete this PDF?")) return;
     try {
       await deletePdf(videoId);
-      setStatus({ type: "success", msg: "PDF delete ho gaya" });
+      setStatus({ type: "success", msg: "PDF deleted successfully" });
       await load();
     } catch {
-      setStatus({ type: "error", msg: "Delete fail ho gaya" });
+      setStatus({ type: "error", msg: "Delete failed" });
     }
   };
 
@@ -136,7 +136,7 @@ export default function AdminPanel() {
       <aside className="sidebar">
         <div className="sidebar-logo">
           <span className="logo-icon">▶</span>
-          <span className="logo-text">VaultStream</span>
+          <span className="logo-text">Sample Animation</span>
         </div>
         <nav className="sidebar-nav">
           <a className="nav-item active">
@@ -165,7 +165,7 @@ export default function AdminPanel() {
         <header className="admin-header">
           <div>
             <h1 className="page-title">Admin Panel</h1>
-            <p className="page-sub">Apni secure HLS videos manage karo</p>
+            <p className="page-sub">Manage your secure HLS videos</p>
           </div>
           <div className="header-badge">
             <span className="dot" /> Live
@@ -192,7 +192,7 @@ export default function AdminPanel() {
               <input
                 className="field-input"
                 type="text"
-                placeholder="e.g. Introduction to React..."
+                placeholder="title of your sample video"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 disabled={uploading}
@@ -311,7 +311,7 @@ export default function AdminPanel() {
           ) : videos.length === 0 ? (
             <div className="empty-state">
               <div className="empty-icon">📹</div>
-              <p>Koi video nahi hai abhi.<br />Upar se pehli video upload karo!</p>
+              <p>No videos uploaded yet.<br />Upload your first video above!</p>
             </div>
           ) : (
             <div className="folder-groups">
@@ -346,7 +346,7 @@ export default function AdminPanel() {
                             {v.pdfUrl ? (
                               <a href={v.pdfUrl} target="_blank" rel="noreferrer">📄 PDF available</a>
                             ) : (
-                              <span className="pdf-none">PDF nahi hai</span>
+                              <span className="pdf-none">PDF not available</span>
                             )}
                           </div>
                         </div>

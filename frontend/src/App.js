@@ -50,7 +50,7 @@ function App() {
     <div className="app">
       <header className="app-header">
         <div className="app-logo">
-          <span>▶</span> SecureStream
+          <span>▶</span> Sample Animation
         </div>
         <div className="app-header-badge">🔒 Secure Content</div>
       </header>
@@ -64,7 +64,7 @@ function App() {
             </>
           ) : (
             <div className="no-video">
-              {loading ? "Loading..." : "Koi video available nahi hai abhi."}
+              {loading ? "Loading..." : "No video available right now please select you folder."}
             </div>
           )}
         </div>
@@ -102,7 +102,7 @@ function App() {
                   <div className="playlist-thumb">▶</div>
                   <div className="playlist-info">
                     <div className="playlist-name">{v.title}</div>
-                    <div className="playlist-badge">🔐 HLS Encrypted</div>
+                    {/* <div className="playlist-badge">🔐 HLS Encrypted</div> */}
                     <div className="playlist-pdf-status">
                       {v.pdfUrl ? (
                         <a
