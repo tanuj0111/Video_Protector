@@ -7,3 +7,4 @@ backend/videos/
 backend/uploads_tmp/
 frontend/build/
 .DS_Store
+DEBUG_FOLDER_IN.txt

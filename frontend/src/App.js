@@ -4,9 +4,10 @@ import { fetchVideos, BASE_URL } from "./api";
 import "./App.css";
 
 function App() {
-  const [videos, setVideos]   = useState([]);
+  const [videos, setVideos] = useState([]);
   const [selected, setSelected] = useState(null);
-  const [loading, setLoading]  = useState(true);
+  const [loading, setLoading] = useState(true);
+  const [selectedFolder, setSelectedFolder] = useState("All");
 
   // ── Global protections (pure app pe) ──────────────────────────────────────
   useEffect(() => {
@@ -26,18 +27,23 @@ function App() {
   }, []);
 
   useEffect(() => {
-    fetchVideos()
-      .then((data) => {
-        console.log("Videos fetched:", data);
-        const list = Array.isArray(data) ? data : [];
-        setVideos(list);
-        if (list.length > 0) setSelected(list[0]);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error("Fetch error:", err);
-        setLoading(false);
-      });
+    const load = () => {
+      fetchVideos()
+        .then((data) => {
+          console.log("Videos fetched:", data);
+          const list = Array.isArray(data) ? data : [];
+          setVideos(list);
+          setLoading(false);
+        })
+        .catch((err) => {
+          console.error("Fetch error:", err);
+          setLoading(false);
+        });
+    };
+
+    load(); // pehli baar load karo
+    const interval = setInterval(load, 10000); // har 10 second mein refresh
+    return () => clearInterval(interval); // cleanup
   }, []);
 
   return (
@@ -64,33 +70,57 @@ function App() {
         </div>
 
         <aside className="playlist">
-          <h3 className="playlist-title">Videos ({videos.length})</h3>
-          {videos.map((v) => (
-            <div
-              key={v.id}
-              className={`playlist-item ${selected?.id === v.id ? "active" : ""}`}
-              onClick={() => setSelected(v)}
-            >
-              <div className="playlist-thumb">▶</div>
-              <div className="playlist-info">
-                <div className="playlist-name">{v.title}</div>
-                <div className="playlist-badge">🔐 HLS Encrypted</div>
-                <div className="playlist-pdf-status">
-                  {v.pdfUrl ? (
-                    <a
-                      href={v.pdfUrl.startsWith("http") ? v.pdfUrl : `${BASE_URL}${v.pdfUrl}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      📄 PDF available
-                    </a>
-                  ) : (
-                    <span className="pdf-none">PDF not available</span>
-                  )}
-                </div>
-              </div>
+          <div className="playlist-header">
+            <h3 className="playlist-title">Videos ({videos.length})</h3>
+
+            {/* Folder Dropdown */}
+            <div className="folder-filter">
+              <select
+                className="folder-select"
+                value={selectedFolder}
+                onChange={(e) => setSelectedFolder(e.target.value)}
+              >
+                <option value="All">All Folders</option>
+                {[...new Set(videos.map(v => v.folder || "General"))]
+                  .filter((v, i, a) => a.indexOf(v) === i)
+                  .sort()
+                  .map(f => <option key={f} value={f}>{f}</option>)
+                }
+              </select>
             </div>
-          ))}
+          </div>
+
+          <div className="playlist-scroll">
+            {videos
+              .filter(v => selectedFolder === "All" || (v.folder || "General") === selectedFolder)
+              .map((v) => (
+                <div
+                  key={v.id}
+                  className={`playlist-item ${selected?.id === v.id ? "active" : ""}`}
+                  onClick={() => setSelected(v)}
+                >
+                  <div className="playlist-thumb">▶</div>
+                  <div className="playlist-info">
+                    <div className="playlist-name">{v.title}</div>
+                    <div className="playlist-badge">🔐 HLS Encrypted</div>
+                    <div className="playlist-pdf-status">
+                      {v.pdfUrl ? (
+                        <a
+                          href={v.pdfUrl.startsWith("http") ? v.pdfUrl : `${BASE_URL}${v.pdfUrl}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          📄 PDF available
+                        </a>
+                      ) : (
+                        <span className="pdf-none">PDF not available</span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+          </div>
         </aside>
       </div>
     </div>

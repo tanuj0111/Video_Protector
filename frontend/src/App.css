@@ -70,14 +70,57 @@ body {
   padding: 24px 16px;
 }
 
+.playlist-header {
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
 .playlist-title {
   font-size: 13px;
   text-transform: uppercase;
   letter-spacing: 1px;
   color: #555570;
-  margin-bottom: 16px;
   padding: 0 4px;
 }
+
+.folder-filter {
+  width: 100%;
+}
+
+.folder-select {
+  width: 100%;
+  background: #18181f;
+  border: 1px solid #2a2a35;
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: #e8e8f0;
+  font-family: inherit;
+  font-size: 13px;
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%238888aa' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 14px;
+}
+
+.folder-select:focus {
+  border-color: #7c6dfa;
+}
+
+.playlist-scroll {
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  max-height: calc(100vh - 250px);
+  padding-right: 4px;
+}
+
+.playlist-scroll::-webkit-scrollbar { width: 4px; }
+.playlist-scroll::-webkit-scrollbar-thumb { background: #2a2a35; border-radius: 10px; }
 
 .playlist-item {
   display: flex;

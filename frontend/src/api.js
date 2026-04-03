@@ -19,10 +19,11 @@ export async function deleteVideo(id) {
   return res.json();
 }
 
-export async function uploadVideo(title, file, onProgress) {
+export async function uploadVideo(title, file, folder, onProgress) {
   return new Promise((resolve, reject) => {
     const formData = new FormData();
     formData.append("title", title);
+    formData.append("folder", folder || "General");
     formData.append("video", file);
 
     const xhr = new XMLHttpRequest();

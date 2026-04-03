@@ -92,7 +92,7 @@ body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-s
 
 .sidebar-footer { padding: 20px 16px 24px; border-top: 1px solid var(--border); }
 
-.video-quota {}
+/* .video-quota {} */
 .quota-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
 .quota-bar { height: 6px; background: var(--border); border-radius: 99px; overflow: hidden; margin-bottom: 6px; }
 .quota-fill { height: 100%; background: linear-gradient(90deg, var(--accent), #a78bfa); border-radius: 99px; transition: width 0.4s ease; }
@@ -274,7 +274,7 @@ body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-s
 .drop-zone.drag-active { border-color: var(--accent); background: rgba(124,109,250,0.1); transform: scale(1.01); }
 .drop-zone.has-file { border-style: solid; border-color: rgba(74,222,128,0.4); background: rgba(74,222,128,0.05); }
 
-.drop-placeholder {}
+/* .drop-placeholder {} */
 .drop-icon { font-size: 36px; margin-bottom: 10px; opacity: 0.5; }
 .drop-text { font-size: 15px; color: var(--text2); font-weight: 500; margin-bottom: 4px; }
 .drop-sub { font-size: 12px; color: var(--text3); }
@@ -421,7 +421,7 @@ body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-s
 .video-date { font-size: 12px; color: var(--text3); }
 .video-id { font-size: 10px; color: var(--text3); font-family: 'Space Mono', monospace; }
 
-.video-actions {}
+/* .video-actions {} */
 .delete-btn {
   background: rgba(250,109,109,0.1);
   border: 1px solid rgba(250,109,109,0.25);
@@ -495,6 +495,22 @@ body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-s
 .pdf-none {
   color: #8888aa;
 }
+
+/* ── Folders ── */
+.folder-select-wrap { margin-bottom: 5px; }
+.select-input { width: 100%; cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%238888aa' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; background-size: 16px; }
+
+.new-folder-field { display: flex; gap: 10px; align-items: center; }
+.new-folder-field .field-input { flex: 1; border-color: var(--accent); }
+.cancel-new-folder { background: var(--surface2); border: 1px solid var(--border); color: var(--text2); width: 42px; height: 42px; border-radius: 8px; cursor: pointer; font-size: 20px; display: grid; place-items: center; transition: all 0.2s; }
+.cancel-new-folder:hover { background: var(--border); color: var(--text); }
+
+.folder-groups { display: flex; flex-direction: column; gap: 32px; }
+.folder-group { display: flex; flex-direction: column; gap: 14px; }
+.folder-header { display: flex; align-items: center; gap: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); margin-bottom: 4px; }
+.folder-icon { font-size: 18px; filter: grayscale(1) brightness(1.5); }
+.folder-name { font-size: 16px; font-weight: 700; color: var(--text); letter-spacing: 0.5px; }
+.folder-count { font-size: 12px; color: var(--text3); font-family: 'Space Mono', monospace; margin-left: auto; }
 
 /* ── Responsive ── */
 @media (max-width: 768px) {

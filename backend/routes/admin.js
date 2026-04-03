@@ -108,11 +108,26 @@ router.get("/videos", auth, (req, res) => {
   res.json(readMeta());
 });
 
+router.get("/debug-path", (req, res) => {
+  res.json({
+    dirname: __dirname,
+    cwd: process.cwd(),
+    metaFile: META_FILE,
+    env: process.env.NODE_ENV
+  });
+});
+
 // ─── POST /api/admin/upload ───────────────────────────────────────────────────
 router.post("/upload", auth, upload.single("video"), (req, res) => {
   const meta = readMeta();
+  const folderHeader = req.body.folder || "General";
 
-  const { title } = req.body;
+  // Permanent log file to verify what the backend hears
+  // fs.writeFileSync(path.join(__dirname, "../../DEBUG_FOLDER_IN.txt"), `Folder received: ${folderHeader}\nTime: ${new Date().toISOString()}`);
+
+  const { title, folder } = req.body;
+  // console.log("FOLDER RECEIVED:", req.body.folder);
+  // console.log("FULL BODY:", req.body);
   if (!title || !title.trim()) {
     if (req.file) fs.unlinkSync(req.file.path);
     return res.status(400).json({ message: "Title is required" });
@@ -127,7 +142,7 @@ router.post("/upload", auth, upload.single("video"), (req, res) => {
   try {
     // serverUrl fix: https hardcoded - v2 (now use env/default localhost)
     const keyInfoFile = generateEncryptionKey(outputDir, videoId, SERVER_URL);
-    
+
     // FFmpeg — HLS + AES-128 encryption
     const videoFile = req.file;
     execSync(
@@ -150,6 +165,7 @@ router.post("/upload", auth, upload.single("video"), (req, res) => {
     const newVideo = {
       id: videoId,
       title: title.trim(),
+      folder: req.body.folder || "General",
       uploadedAt: new Date().toISOString(),
       playlistUrl: `/api/video/${videoId}/playlist.m3u8`,
       pdfUrl: null,
@@ -165,10 +181,10 @@ router.post("/upload", auth, upload.single("video"), (req, res) => {
   } catch (err) {
     try {
       if (req.file) fs.unlinkSync(req.file.path);
-    } catch {}
+    } catch { }
     try {
       fs.rmSync(outputDir, { recursive: true });
-    } catch {}
+    } catch { }
     console.error("FFmpeg error:", err.message);
     res
       .status(500)
@@ -188,7 +204,7 @@ router.delete("/videos/:id", auth, (req, res) => {
 
   try {
     fs.rmSync(path.join(VIDEOS_DIR, videoId), { recursive: true });
-  } catch {}
+  } catch { }
   meta.splice(idx, 1);
   writeMeta(meta);
 
@@ -199,11 +215,11 @@ router.delete("/videos/:id", auth, (req, res) => {
 router.get("/pdf/:id/document.pdf", auth, (req, res) => {
   const videoId = req.params.id.replace(/[^a-zA-Z0-9_-]/g, "");
   const pdfPath = path.join(VIDEOS_DIR, videoId, "document.pdf");
-  
+
   if (!fs.existsSync(pdfPath)) {
     return res.status(404).json({ message: "PDF not found" });
   }
-  
+
   res.setHeader("Content-Type", "application/pdf");
   res.setHeader("Content-Disposition", "inline; filename=document.pdf");
   res.sendFile(pdfPath);
@@ -214,7 +230,7 @@ router.post("/videos/:id/pdf", auth, pdfUpload.single("pdf"), (req, res) => {
   const videoId = req.params.id.replace(/[^a-zA-Z0-9_-]/g, "");
   const meta = readMeta();
   const videoIdx = meta.findIndex((v) => v.id === videoId);
-  
+
   if (videoIdx === -1) {
     if (req.file) fs.unlinkSync(req.file.path);
     return res.status(404).json({ message: "Video not found" });
@@ -227,20 +243,20 @@ router.post("/videos/:id/pdf", auth, pdfUpload.single("pdf"), (req, res) => {
   try {
     const outputDir = path.join(VIDEOS_DIR, videoId);
     const pdfOutputPath = path.join(outputDir, "document.pdf");
-    
+
     // Delete old PDF if exists
     if (fs.existsSync(pdfOutputPath)) {
       fs.unlinkSync(pdfOutputPath);
     }
-    
+
     // Move new PDF
     fs.renameSync(req.file.path, pdfOutputPath);
-    
+
     // Update meta with public video URL for PDF
     const pdfUrl = `/api/video/${videoId}/document.pdf`;
     meta[videoIdx].pdfUrl = pdfUrl;
     writeMeta(meta);
-    
+
     res.json({
       message: "PDF added successfully!",
       pdfUrl,
@@ -248,7 +264,7 @@ router.post("/videos/:id/pdf", auth, pdfUpload.single("pdf"), (req, res) => {
   } catch (err) {
     try {
       if (req.file) fs.unlinkSync(req.file.path);
-    } catch {}
+    } catch { }
     console.error("PDF upload error:", err.message);
     res.status(500).json({
       message: "PDF upload failed",
@@ -262,7 +278,7 @@ router.delete("/videos/:id/pdf", auth, (req, res) => {
   const videoId = req.params.id.replace(/[^a-zA-Z0-9_-]/g, "");
   const meta = readMeta();
   const videoIdx = meta.findIndex((v) => v.id === videoId);
-  
+
   if (videoIdx === -1) {
     return res.status(404).json({ message: "Video not found" });
   }
@@ -272,10 +288,10 @@ router.delete("/videos/:id/pdf", auth, (req, res) => {
     if (fs.existsSync(pdfPath)) {
       fs.unlinkSync(pdfPath);
     }
-    
+
     meta[videoIdx].pdfUrl = null;
     writeMeta(meta);
-    
+
     res.json({ message: "PDF deleted successfully!" });
   } catch (err) {
     console.error("PDF delete error:", err.message);

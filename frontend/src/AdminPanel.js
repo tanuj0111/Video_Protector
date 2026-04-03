@@ -12,6 +12,11 @@ export default function AdminPanel() {
   const [loading, setLoading] = useState(true);
   const [dragOver, setDragOver] = useState(false);
   const [pdfUploadingId, setPdfUploadingId] = useState(null);
+  
+  // Folder states
+  const [selectedFolder, setSelectedFolder] = useState("General");
+  const [newFolderName, setNewFolderName] = useState("");
+  const [showNewFolder, setShowNewFolder] = useState(false);
   const fileInputRef = useRef();
   const pdfInputRef = useRef();
 
@@ -49,12 +54,21 @@ export default function AdminPanel() {
     setStatus(null);
 
     try {
-      const res = await uploadVideo(title, file, setProgress);
+      const folderToUse = showNewFolder ? newFolderName.trim() : selectedFolder;
+      console.log("DEBUG: Sending to Backend with Folder =>", folderToUse);
+      
+      if (!folderToUse) {
+        return setStatus({ type: "error", msg: "Folder name cannot be empty" });
+      }
+
+      const res = await uploadVideo(title, file, folderToUse, setProgress);
       if (res.video) {
         setStatus({ type: "success", msg: `"${res.video.title}" upload ho gaya!` });
         setTitle("");
         setFile(null);
         setProgress(0);
+        setNewFolderName("");
+        setShowNewFolder(false);
         await load();
       } else {
         setStatus({ type: "error", msg: res.message || "Upload fail ho gaya" });
@@ -233,6 +247,42 @@ export default function AdminPanel() {
               </div>
             )}
 
+            <div className="field">
+              <label className="field-label">Folder / Category *</label>
+              <div className="folder-select-wrap">
+                {!showNewFolder ? (
+                  <select 
+                    className="field-input select-input"
+                    value={selectedFolder}
+                    onChange={(e) => {
+                      if (e.target.value === "ADD_NEW") {
+                        setShowNewFolder(true);
+                      } else {
+                        setSelectedFolder(e.target.value);
+                      }
+                    }}
+                  >
+                    {[...new Set(videos.map(v => v.folder || "General")), "General"]
+                      .filter((v, i, a) => a.indexOf(v) === i)
+                      .map(f => <option key={f} value={f}>{f}</option>)
+                    }
+                    <option value="ADD_NEW">+ Create New Folder</option>
+                  </select>
+                ) : (
+                  <div className="new-folder-field">
+                    <input
+                      className="field-input"
+                      type="text"
+                      placeholder="Enter new folder name..."
+                      value={newFolderName}
+                      onChange={(e) => setNewFolderName(e.target.value)}
+                    />
+                    <button className="cancel-new-folder" onClick={() => setShowNewFolder(false)}>×</button>
+                  </div>
+                )}
+              </div>
+            </div>
+
             <button
               className="upload-btn"
               onClick={handleUpload}
@@ -247,7 +297,7 @@ export default function AdminPanel() {
           </div>
         </section>
 
-        {/* ── Videos List ── */}
+        {/* ── Videos List Grouped by Folder ── */}
         <section className="card videos-card">
           <h2 className="card-title">
             <span className="card-icon">⊞</span> Uploaded Videos
@@ -264,54 +314,72 @@ export default function AdminPanel() {
               <p>Koi video nahi hai abhi.<br />Upar se pehli video upload karo!</p>
             </div>
           ) : (
-            <div className="videos-list">
-              {videos.map((v, i) => (
-                <div className="video-row" key={v.id}>
-                  <div className="video-thumb">
-                    <span>{i + 1}</span>
+            <div className="folder-groups">
+              {Object.entries(
+                videos.reduce((acc, v) => {
+                  const f = v.folder || "General";
+                  if (!acc[f]) acc[f] = [];
+                  acc[f].push(v);
+                  return acc;
+                }, {})
+              ).map(([folder, folderVideos]) => (
+                <div key={folder} className="folder-group">
+                  <div className="folder-header">
+                    <span className="folder-icon">📁</span>
+                    <span className="folder-name">{folder}</span>
+                    <span className="folder-count">{folderVideos.length} videos</span>
                   </div>
-                  <div className="video-info">
-                    <div className="video-title">{v.title}</div>
-                    <div className="video-meta">
-                      <span className="hls-badge">HLS</span>
-                      <span className="video-date">{formatDate(v.uploadedAt)}</span>
-                    </div>
-                    <div className="video-id">{v.id}</div>
-                    <div className="video-pdf-status">
-                      {v.pdfUrl ? (
-                        <a href={v.pdfUrl} target="_blank" rel="noreferrer">📄 PDF available</a>
-                      ) : (
-                        <span className="pdf-none">PDF nahi hai</span>
-                      )}
-                    </div>
-                  </div>
-                  <div className="video-actions">
-                    {v.pdfUrl ? (
-                      <button
-                        className="pdf-btn"
-                        onClick={() => handleDeletePdf(v.id)}
-                        title="PDF delete karo"
-                        disabled={pdfUploadingId === v.id}
-                      >
-                        {pdfUploadingId === v.id ? "⏳" : "📄"} Delete PDF
-                      </button>
-                    ) : (
-                      <button
-                        className="pdf-btn add"
-                        onClick={() => handleUploadPdf(v.id)}
-                        title="PDF add karo"
-                        disabled={pdfUploadingId === v.id}
-                      >
-                        {pdfUploadingId === v.id ? "⏳" : "📄"} Add PDF
-                      </button>
-                    )}
-                    <button
-                      className="delete-btn"
-                      onClick={() => handleDelete(v.id, v.title)}
-                      title="Delete karo"
-                    >
-                      🗑 Delete
-                    </button>
+                  <div className="videos-list">
+                    {folderVideos.map((v, i) => (
+                      <div className="video-row" key={v.id}>
+                        <div className="video-thumb">
+                          <span>{i + 1}</span>
+                        </div>
+                        <div className="video-info">
+                          <div className="video-title">{v.title}</div>
+                          <div className="video-meta">
+                            <span className="hls-badge">HLS</span>
+                            <span className="video-date">{formatDate(v.uploadedAt)}</span>
+                          </div>
+                          <div className="video-id">{v.id}</div>
+                          <div className="video-pdf-status">
+                            {v.pdfUrl ? (
+                              <a href={v.pdfUrl} target="_blank" rel="noreferrer">📄 PDF available</a>
+                            ) : (
+                              <span className="pdf-none">PDF nahi hai</span>
+                            )}
+                          </div>
+                        </div>
+                        <div className="video-actions">
+                          {v.pdfUrl ? (
+                            <button
+                              className="pdf-btn"
+                              onClick={() => handleDeletePdf(v.id)}
+                              title="PDF delete karo"
+                              disabled={pdfUploadingId === v.id}
+                            >
+                              {pdfUploadingId === v.id ? "⏳" : "📄"} Delete PDF
+                            </button>
+                          ) : (
+                            <button
+                              className="pdf-btn add"
+                              onClick={() => handleUploadPdf(v.id)}
+                              title="PDF add karo"
+                              disabled={pdfUploadingId === v.id}
+                            >
+                              {pdfUploadingId === v.id ? "⏳" : "📄"} Add PDF
+                            </button>
+                          )}
+                          <button
+                            className="delete-btn"
+                            onClick={() => handleDelete(v.id, v.title)}
+                            title="Delete karo"
+                          >
+                            🗑 Delete
+                          </button>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
               ))}
