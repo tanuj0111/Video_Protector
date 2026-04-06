@@ -9,42 +9,31 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [selectedFolder, setSelectedFolder] = useState(null);
 
-  // ── Global protections (pure app pe) ──────────────────────────────────────
   useEffect(() => {
-    // Right-click block globally
     const blockCtx = (e) => e.preventDefault();
     document.addEventListener("contextmenu", blockCtx);
-
-    // Text selection block
     document.addEventListener("selectstart", (e) => e.preventDefault());
-
-    // Drag block — video drag karke save na ho sake
     document.addEventListener("dragstart", (e) => e.preventDefault());
-
-    return () => {
-      document.removeEventListener("contextmenu", blockCtx);
-    };
+    return () => document.removeEventListener("contextmenu", blockCtx);
   }, []);
 
   useEffect(() => {
     const load = () => {
       fetchVideos()
         .then((data) => {
-          console.log("Videos fetched:", data);
           const list = Array.isArray(data) ? data : [];
           setVideos(list);
           setLoading(false);
         })
-        .catch((err) => {
-          console.error("Fetch error:", err);
-          setLoading(false);
-        });
+        .catch(() => setLoading(false));
     };
-
-    load(); // pehli baar load karo
-    const interval = setInterval(load, 10000); // har 10 second mein refresh
-    return () => clearInterval(interval); // cleanup
+    load();
+    const interval = setInterval(load, 10000);
+    return () => clearInterval(interval);
   }, []);
+
+  // Saare unique folders
+  const folders = [...new Set(videos.map((v) => v.folder || "General"))].sort();
 
   return (
     <div className="app">
@@ -64,51 +53,99 @@ function App() {
             </>
           ) : (
             <div className="no-video">
-              {loading
-                ? "Loading..."
-                : "No video available right now please select you folder."}
+              {loading ? "Loading..." : "select a folder and video to play."}
             </div>
           )}
         </div>
 
         <aside className="playlist">
           <div className="playlist-header">
-            <h3 className="playlist-title">Videos ({videos.length})</h3>
-
-            {/* Folder Dropdown */}
-            <div className="folder-filter">
-              <select
-                className="folder-select"
-                value={selectedFolder}
-               onChange={(e) => setSelectedFolder(e.target.value === "All" ? "All" : e.target.value)}
-              >
-                <option value="All">All Folders</option>
-                {[...new Set(videos.map((v) => v.folder || "General"))]
-                  .filter((v, i, a) => a.indexOf(v) === i)
-                  .sort()
-                  .map((f) => (
-                    <option key={f} value={f}>
-                      {f}
-                    </option>
-                  ))}
-              </select>
-            </div>
+            <h3 className="playlist-title">
+              {selectedFolder ? (
+                <span
+                  style={{
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                  }}
+                  onClick={() => {
+                    setSelectedFolder(null);
+                    setSelected(null);
+                  }}
+                >
+                  <span style={{ fontSize: "18px" }}>←</span> {selectedFolder}
+                </span>
+              ) : (
+                `Folders (${folders.length})`
+              )}
+            </h3>
           </div>
 
           <div className="playlist-scroll">
-            {selectedFolder === null ? (
+            {loading ? (
               <div
                 style={{ color: "#aaa", padding: "20px", textAlign: "center" }}
               >
-               select your folder
+                Loading...
               </div>
+            ) : selectedFolder === null ? (
+              // ── Folder Cards ──
+              folders.length === 0 ? (
+                <div
+                  style={{
+                    color: "#aaa",
+                    padding: "20px",
+                    textAlign: "center",
+                  }}
+                >
+                  No videos available. Please check back later.
+                </div>
+              ) : (
+                folders.map((folder) => {
+                  const count = videos.filter(
+                    (v) => (v.folder || "General") === folder,
+                  ).length;
+                  return (
+                    <div
+                      key={folder}
+                      onClick={() => setSelectedFolder(folder)}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "12px",
+                        padding: "14px 16px",
+                        margin: "8px",
+                        borderRadius: "10px",
+                        background: "#1e1e2e",
+                        cursor: "pointer",
+                        border: "1px solid #333",
+                        transition: "background 0.2s",
+                      }}
+                      onMouseEnter={(e) =>
+                        (e.currentTarget.style.background = "#2a2a3e")
+                      }
+                      onMouseLeave={(e) =>
+                        (e.currentTarget.style.background = "#1e1e2e")
+                      }
+                    >
+                      <span style={{ fontSize: "24px" }}>📁</span>
+                      <div>
+                        <div style={{ color: "#fff", fontWeight: "600" }}>
+                          {folder}
+                        </div>
+                        <div style={{ color: "#aaa", fontSize: "12px" }}>
+                          {count} video{count !== 1 ? "s" : ""}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })
+              )
             ) : (
+              // ── Videos List ──
               videos
-                .filter(
-                  (v) =>
-                    selectedFolder === "All" ||
-                    (v.folder || "General") === selectedFolder,
-                )
+                .filter((v) => (v.folder || "General") === selectedFolder)
                 .map((v) => (
                   <div
                     key={v.id}
@@ -118,7 +155,6 @@ function App() {
                     <div className="playlist-thumb">▶</div>
                     <div className="playlist-info">
                       <div className="playlist-name">{v.title}</div>
-                      {/* <div className="playlist-badge">🔐 HLS Encrypted</div> */}
                       <div className="playlist-pdf-status">
                         {v.pdfUrl ? (
                           <a
