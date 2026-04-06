@@ -7,7 +7,7 @@ function App() {
   const [videos, setVideos] = useState([]);
   const [selected, setSelected] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [selectedFolder, setSelectedFolder] = useState("All");
+  const [selectedFolder, setSelectedFolder] = useState(null);
 
   // ── Global protections (pure app pe) ──────────────────────────────────────
   useEffect(() => {
@@ -64,7 +64,9 @@ function App() {
             </>
           ) : (
             <div className="no-video">
-              {loading ? "Loading..." : "No video available right now please select you folder."}
+              {loading
+                ? "Loading..."
+                : "No video available right now please select you folder."}
             </div>
           )}
         </div>
@@ -78,48 +80,67 @@ function App() {
               <select
                 className="folder-select"
                 value={selectedFolder}
-                onChange={(e) => setSelectedFolder(e.target.value)}
+               onChange={(e) => setSelectedFolder(e.target.value === "All" ? "All" : e.target.value)}
               >
                 <option value="All">All Folders</option>
-                {[...new Set(videos.map(v => v.folder || "General"))]
+                {[...new Set(videos.map((v) => v.folder || "General"))]
                   .filter((v, i, a) => a.indexOf(v) === i)
                   .sort()
-                  .map(f => <option key={f} value={f}>{f}</option>)
-                }
+                  .map((f) => (
+                    <option key={f} value={f}>
+                      {f}
+                    </option>
+                  ))}
               </select>
             </div>
           </div>
 
           <div className="playlist-scroll">
-            {videos
-              .filter(v => selectedFolder === "All" || (v.folder || "General") === selectedFolder)
-              .map((v) => (
-                <div
-                  key={v.id}
-                  className={`playlist-item ${selected?.id === v.id ? "active" : ""}`}
-                  onClick={() => setSelected(v)}
-                >
-                  <div className="playlist-thumb">▶</div>
-                  <div className="playlist-info">
-                    <div className="playlist-name">{v.title}</div>
-                    {/* <div className="playlist-badge">🔐 HLS Encrypted</div> */}
-                    <div className="playlist-pdf-status">
-                      {v.pdfUrl ? (
-                        <a
-                          href={v.pdfUrl.startsWith("http") ? v.pdfUrl : `${BASE_URL}${v.pdfUrl}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          📄 PDF available
-                        </a>
-                      ) : (
-                        <span className="pdf-none">PDF not available</span>
-                      )}
+            {selectedFolder === null ? (
+              <div
+                style={{ color: "#aaa", padding: "20px", textAlign: "center" }}
+              >
+               select your folder
+              </div>
+            ) : (
+              videos
+                .filter(
+                  (v) =>
+                    selectedFolder === "All" ||
+                    (v.folder || "General") === selectedFolder,
+                )
+                .map((v) => (
+                  <div
+                    key={v.id}
+                    className={`playlist-item ${selected?.id === v.id ? "active" : ""}`}
+                    onClick={() => setSelected(v)}
+                  >
+                    <div className="playlist-thumb">▶</div>
+                    <div className="playlist-info">
+                      <div className="playlist-name">{v.title}</div>
+                      {/* <div className="playlist-badge">🔐 HLS Encrypted</div> */}
+                      <div className="playlist-pdf-status">
+                        {v.pdfUrl ? (
+                          <a
+                            href={
+                              v.pdfUrl.startsWith("http")
+                                ? v.pdfUrl
+                                : `${BASE_URL}${v.pdfUrl}`
+                            }
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            📄 PDF available
+                          </a>
+                        ) : (
+                          <span className="pdf-none">PDF not available</span>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))
+            )}
           </div>
         </aside>
       </div>
